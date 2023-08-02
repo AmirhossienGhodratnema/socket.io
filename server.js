@@ -4,20 +4,26 @@ const express = require('express')
 const app = express()
 app.use(express.static('./'))
 const socketIO = require('socket.io');
-const { appendFile } = require('fs');
-const { executionAsyncResource } = require('async_hooks');
 const io = socketIO(server, {
     cors: { origin: '*' },
     maxHttpBufferSize: 1e8,
 })
 
-io.of('/client').on('connection', (socket, req) => {
-    socket.on('Welcom', (data) => console.log(data));
-    socket.on('name', (data) => console.log(data));
-    socket.emit('test', 'Hello client too');
-    socket.emit('info', { name: 'Amrihossein', lastName: 'Ghodratnema', age: 25 });
+io.of('/client').on('connection', (clientSocket, req) => {
+    clientSocket.on('Welcom', (data) => console.log(data));
+    clientSocket.on('name', (data) => console.log(data));
+    clientSocket.emit('test', 'Hello client too');
+    clientSocket.emit('info', { name: 'Amrihossein', lastName: 'Ghodratnema', age: 25 });
     console.log()
-})
+});
+
+io.of('/admin').on('connection', (adminSocket, req) => {
+    adminSocket.emit('adminConnection', 'Admin connection ok');
+});
+
+io.on('connection', (globalSocket, req) => {
+    globalSocket.emit('global', 'Global connection is ok');
+});
 
 
 server.listen(8000, console.log('Runnin on port 8000...'));
